@@ -7,14 +7,13 @@ namespace DynatronCustomerCRUD.Controllers
     [ApiController]
     public class CustomersController : ControllerBase
     {
-        private static readonly List<Customer> Customers = new List<Customer>()
+        private readonly List<Customer> _customers;
+
+        public CustomersController(List<Customer> customers)
         {
-            new Customer { Id = 1, FirstName = "Bob", LastName = "Dillon", Email = "bobdillon@example.com", LastUpdatedDate = DateTime.Now },
-            new Customer { Id = 2, FirstName = "Elroy", LastName = "Smith", Email = "elroysmith@example.com", LastUpdatedDate = DateTime.Now },
-            new Customer { Id = 3, FirstName = "Tai", LastName = "Xiaoma", Email = "taixiaoma@example.com", LastUpdatedDate = DateTime.Now },
-            new Customer { Id = 4, FirstName = "Kevin", LastName = "Bacon", Email = "kevinbacon@example.com", LastUpdatedDate = DateTime.Now },
-            new Customer { Id = 5, FirstName = "Alena", LastName = "Zarcovia", Email = "alenazarcovia@example.com", LastUpdatedDate = DateTime.Now }
-        };
+            //_customers = customers ?? new List<Customer>();
+            _customers = customers;
+        }
 
         // GET: api/<CustomersController>
         [HttpGet]
@@ -22,12 +21,12 @@ namespace DynatronCustomerCRUD.Controllers
         {
             try
             {
-                if (Customers == null)
+                if (_customers == null)
                 {
                     return NotFound();
                 }
 
-                return Customers;
+                return _customers;
             }
             catch (Exception ex)
             {
@@ -42,7 +41,7 @@ namespace DynatronCustomerCRUD.Controllers
         {
             try
             {
-                var customer = Customers.Find(c => c.Id == id);
+                var customer = _customers.Find(c => c.Id == id);
                 if (customer == null)
                 {
                     return NotFound();
@@ -66,13 +65,13 @@ namespace DynatronCustomerCRUD.Controllers
                 // NOTE: temporary solution for Id += 1 until Entity Framework ORM / MySQL DB implementation
                 var customer = new Customer
                 {
-                    Id = Customers.Max(c => c.Id) + 1,
+                    Id = _customers.Max(c => c.Id) + 1,
                     FirstName = customerRequest.FirstName,
                     LastName = customerRequest.LastName,
                     Email = customerRequest.Email,
                     LastUpdatedDate = DateTime.Now,
                 };
-                Customers.Add(customer);
+                _customers.Add(customer);
                 return CreatedAtAction(nameof(Get), new { id = customer.Id }, customer);
             }
             catch (Exception ex)
@@ -88,7 +87,7 @@ namespace DynatronCustomerCRUD.Controllers
         {
             try
             {
-                var customerToUpdate = Customers.FirstOrDefault(c => c.Id == id);
+                var customerToUpdate = _customers.FirstOrDefault(c => c.Id == id);
                 if (customerToUpdate == null)
                 {
                     return NotFound();
@@ -113,12 +112,12 @@ namespace DynatronCustomerCRUD.Controllers
         {
             try
             {
-                var customerToRemove = Customers.Find(c => c.Id == id);
+                var customerToRemove = _customers.Find(c => c.Id == id);
                 if (customerToRemove == null)
                 {
                     return NotFound();
                 }
-                Customers.Remove(customerToRemove);
+                _customers.Remove(customerToRemove);
 
                 return NoContent();
             }
