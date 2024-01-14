@@ -60,6 +60,11 @@ namespace DynatronCustomerCRUD.Controllers
         [HttpPost]
         public ActionResult<Customer> Post([FromBody] CustomerCreateUpdateDto customerRequest)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             try
             {
                 // NOTE: temporary solution for Id += 1 until Entity Framework ORM / MySQL DB implementation
@@ -85,6 +90,11 @@ namespace DynatronCustomerCRUD.Controllers
         [HttpPut("{id}")]
         public ActionResult<Customer> Put(int id, [FromBody] CustomerCreateUpdateDto customerRequest)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             try
             {
                 var customerToUpdate = _customers.FirstOrDefault(c => c.Id == id);
