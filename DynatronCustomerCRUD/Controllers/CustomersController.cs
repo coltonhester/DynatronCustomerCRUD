@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using DynatronCustomerCRUD.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DynatronCustomerCRUD.Controllers
 {
@@ -7,58 +8,57 @@ namespace DynatronCustomerCRUD.Controllers
     [ApiController]
     public class CustomersController : ControllerBase
     {
-        private readonly List<Customer> _customers;
+        private readonly DynatronDbContext _context;
 
-        public CustomersController(List<Customer> customers)
+        public CustomersController(DynatronDbContext context)
         {
-            //_customers = customers ?? new List<Customer>();
-            _customers = customers;
+            _context = context;
         }
 
         // GET: api/<CustomersController>
         [HttpGet]
-        public ActionResult<IEnumerable<Customer>> Get()
+        public async Task<ActionResult<IEnumerable<Customer>>> Get()
         {
             try
             {
-                if (_customers == null)
+                var customers = await _context.Customers.ToListAsync();
+                if (customers == null)
                 {
                     return NotFound();
                 }
 
-                return _customers;
+                return customers;
             }
             catch (Exception ex)
             {
-                // TODO: Log exception details once DB exists
+                // TODO: Log exception details
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
 
         // GET api/<CustomersController>/5
         [HttpGet("{id}")]
-        public ActionResult<Customer> Get(int id)
+        public async Task<ActionResult<Customer>> Get(int id)
         {
             try
             {
-                var customer = _customers.Find(c => c.Id == id);
+                var customer = await _context.Customers.FindAsync(id);
                 if (customer == null)
                 {
                     return NotFound();
                 }
-
                 return customer;
             }
             catch (Exception ex)
             {
-                // TODO: Log exception details once DB exists
+                // TODO: Log exception details
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
 
         // POST api/<CustomersController>
         [HttpPost]
-        public ActionResult<Customer> Post([FromBody] CustomerCreateUpdateDto customerRequest)
+        public async Task<ActionResult<Customer>> Post([FromBody] CustomerCreateUpdateDto customerRequest)
         {
             if (!ModelState.IsValid)
             {
@@ -67,28 +67,28 @@ namespace DynatronCustomerCRUD.Controllers
 
             try
             {
-                // NOTE: temporary solution for Id += 1 until Entity Framework ORM / MySQL DB implementation
                 var customer = new Customer
                 {
-                    Id = _customers.Max(c => c.Id) + 1,
                     FirstName = customerRequest.FirstName,
                     LastName = customerRequest.LastName,
                     Email = customerRequest.Email,
                     LastUpdatedDate = DateTime.Now,
                 };
-                _customers.Add(customer);
+                _context.Customers.Add(customer);
+                await _context.SaveChangesAsync();
+
                 return CreatedAtAction(nameof(Get), new { id = customer.Id }, customer);
             }
             catch (Exception ex)
             {
-                // TODO: Log exception details once DB exists
+                // TODO: Log exception details
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
 
         // PUT api/<CustomersController>/5
         [HttpPut("{id}")]
-        public ActionResult<Customer> Put(int id, [FromBody] CustomerCreateUpdateDto customerRequest)
+        public async Task<ActionResult<Customer>> Put(int id, [FromBody] CustomerCreateUpdateDto customerRequest)
         {
             if (!ModelState.IsValid)
             {
@@ -97,43 +97,44 @@ namespace DynatronCustomerCRUD.Controllers
 
             try
             {
-                var customerToUpdate = _customers.FirstOrDefault(c => c.Id == id);
-                if (customerToUpdate == null)
+                var customer = await _context.Customers.FindAsync(id);
+                if (customer == null)
                 {
                     return NotFound();
                 }
-                customerToUpdate.FirstName = customerRequest.FirstName;
-                customerToUpdate.LastName = customerRequest.LastName;
-                customerToUpdate.Email = customerRequest.Email;
-                customerToUpdate.LastUpdatedDate = DateTime.Now;
+                customer.FirstName = customerRequest.FirstName;
+                customer.LastName = customerRequest.LastName;
+                customer.Email = customerRequest.Email;
+                customer.LastUpdatedDate = DateTime.Now;
 
-                return customerToUpdate;
+                return customer;
+                //return NoContent();  //prefer returning more visible results...
             }
             catch (Exception ex)
             {
-                // TODO: Log exception details once DB exists
+                // TODO: Log exception details
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
 
         // DELETE api/<CustomersController>/5
         [HttpDelete("{id}")]
-        public ActionResult<Customer> Delete(int id)
+        public async Task<ActionResult<Customer>> Delete(int id)
         {
             try
             {
-                var customerToRemove = _customers.Find(c => c.Id == id);
-                if (customerToRemove == null)
+                var customer = await _context.Customers.FindAsync(id);
+                if (customer == null)
                 {
                     return NotFound();
                 }
-                _customers.Remove(customerToRemove);
+                _context.Customers.Remove(customer);
 
                 return NoContent();
             }
             catch (Exception ex)
             {
-                // TODO: Log exception details once DB exists
+                // TODO: Log exception details
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }

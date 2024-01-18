@@ -2,15 +2,8 @@
 
 namespace DynatronCustomerCRUD.Models
 {
-    public class Customer
+    public class CustomerCreateUpdateDto
     {
-        public Customer()
-        {
-            CreatedDate = DateTime.Now;
-        }
-
-        public int Id { get; set; }
-
         [Required]
         public string? FirstName { get; set; }
 
@@ -19,8 +12,5 @@ namespace DynatronCustomerCRUD.Models
 
         [Required, EmailAddress]
         public string? Email { get; set; }
-
-        public DateTime CreatedDate { get; private set; }
-        public DateTime LastUpdatedDate { get; set; }
     }
 }

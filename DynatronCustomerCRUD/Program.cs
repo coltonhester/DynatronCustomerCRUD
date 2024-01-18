@@ -1,4 +1,6 @@
 using DynatronCustomerCRUD.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +8,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+var configuration = builder.Configuration;
+
+// Add User Secrets in development
+#if DEBUG
+builder.Configuration.AddUserSecrets<DynatronDbContext>();
+#endif
+
+builder.Services.AddDbContext<DynatronDbContext>();
 
 // temp mock data solution until EF DB
 builder.Services.AddSingleton(new List<Customer>
