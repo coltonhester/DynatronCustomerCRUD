@@ -129,6 +129,7 @@ namespace DynatronCustomerCRUD.Controllers
                     return NotFound();
                 }
                 _context.Customers.Remove(customer);
+                await _context.SaveChangesAsync();
 
                 return NoContent();
             }
