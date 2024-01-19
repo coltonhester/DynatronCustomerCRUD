@@ -5,11 +5,16 @@ namespace DynatronCustomerCRUD.Models
 {
     public class DynatronDbContext : DbContext
     {
-        private readonly IConfiguration _configuration;
+        //private readonly IConfiguration _configuration;
 
-        public DynatronDbContext(IConfiguration configuration)
+        //public DynatronDbContext(IConfiguration configuration)
+        //{
+        //    _configuration = configuration;
+        //}
+
+        public DynatronDbContext(DbContextOptions<DynatronDbContext> options)
+            : base(options)
         {
-            _configuration = configuration;
         }
 
         public DbSet<Customer> Customers { get; set; }
@@ -28,11 +33,17 @@ namespace DynatronCustomerCRUD.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //TODO: refactor environment vars once secret manager is in place
-            //var connectionString = Environment.GetEnvironmentVariable("DYNATRON_DB_CONNECTION_STRING");
+            if (!optionsBuilder.IsConfigured)
+            {
+                // Configure the context to use an SQL server (or any other provider)
+                // only if it hasn't been configured already. This is useful for unit tests.
+                var configuration = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json")
+                    .Build();
 
-            var connectionString = _configuration.GetConnectionString("DynatronDatabase");
-            optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+                var connectionString = configuration.GetConnectionString("DynatronDatabase");
+                optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+            }
         }
     }
 }

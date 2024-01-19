@@ -16,7 +16,11 @@ var configuration = builder.Configuration;
 builder.Configuration.AddUserSecrets<DynatronDbContext>();
 #endif
 
-builder.Services.AddDbContext<DynatronDbContext>();
+//builder.Services.AddDbContext<DynatronDbContext>();
+builder.Services.AddDbContext<DynatronDbContext>(options =>
+    options.UseMySql(configuration.GetConnectionString("DynatronDatabase"),
+    ServerVersion.AutoDetect(configuration.GetConnectionString("DynatronDatabase"))));
+
 
 // temp mock data solution until EF DB
 builder.Services.AddSingleton(new List<Customer>
