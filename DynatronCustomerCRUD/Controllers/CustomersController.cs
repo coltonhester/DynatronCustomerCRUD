@@ -27,7 +27,7 @@ namespace DynatronCustomerCRUD.Controllers
                     return NotFound();
                 }
 
-                return customers;
+                return Ok(customers);
             }
             catch (Exception ex)
             {
@@ -47,7 +47,8 @@ namespace DynatronCustomerCRUD.Controllers
                 {
                     return NotFound();
                 }
-                return customer;
+
+                return Ok(customer);
             }
             catch (Exception ex)
             {
@@ -74,6 +75,7 @@ namespace DynatronCustomerCRUD.Controllers
                     Email = customerRequest.Email,
                     LastUpdatedDate = DateTime.Now,
                 };
+
                 _context.Customers.Add(customer);
                 await _context.SaveChangesAsync();
 
@@ -107,8 +109,9 @@ namespace DynatronCustomerCRUD.Controllers
                 customer.Email = customerRequest.Email;
                 customer.LastUpdatedDate = DateTime.Now;
 
-                return customer;
-                //return NoContent();  //prefer returning more visible results...
+                await _context.SaveChangesAsync();
+
+                return Ok(customer);
             }
             catch (Exception ex)
             {

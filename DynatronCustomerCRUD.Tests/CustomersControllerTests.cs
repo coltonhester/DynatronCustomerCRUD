@@ -50,8 +50,9 @@ namespace DynatronCustomerCRUD.Tests
 
             // Assert
             var actionResult = Assert.IsType<ActionResult<IEnumerable<Customer>>>(result);
-            Assert.IsType<List<Customer>>(actionResult.Value);
-            Assert.Equal(_context.Customers.ToList().Count, actionResult.Value.ToList().Count);
+            var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+            var returnedCustomers = Assert.IsType<List<Customer>>(okResult.Value);
+            Assert.Equal(_context.Customers.ToList().Count, returnedCustomers.Count);
         }
 
         [Fact]
@@ -62,8 +63,10 @@ namespace DynatronCustomerCRUD.Tests
 
             // Assert
             var actionResult = Assert.IsType<ActionResult<Customer>>(result);
-            Assert.IsType<Customer>(actionResult.Value);
-            Assert.Equal(await _context.Customers.FindAsync(1), actionResult.Value);
+            var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+            var customer = Assert.IsType<Customer>(okResult.Value);
+
+            Assert.Equal(await _context.Customers.FindAsync(1), customer);
         }
 
         [Fact]
@@ -112,8 +115,9 @@ namespace DynatronCustomerCRUD.Tests
             var result = await _controller.Put(1, updateCustomer);
 
             var actionResult = Assert.IsType<ActionResult<Customer>>(result);
-            Assert.IsType<Customer>(actionResult.Value);
-            Assert.Equal(await _context.Customers.FindAsync(1), actionResult.Value);
+            var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+            var updatedCustomer = Assert.IsType<Customer>(okResult.Value);
+            Assert.Equal(await _context.Customers.FindAsync(1), updatedCustomer);
         }
 
         [Fact]
